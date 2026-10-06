@@ -1,0 +1,423 @@
+/* ---------------- GENERAL ---------------- */
+
+body{
+    margin:0;
+    padding:0;
+    font-family: 'Segoe UI', sans-serif;
+    background: linear-gradient(135deg,#07121f,#0d1b2a,#10263b);
+    color:white;
+    overflow-x:hidden;
+}
+
+/* ---------------- LANDING ---------------- */
+
+.landing-page{
+    text-align:center;
+    padding:80px 20px;
+}
+
+.logo{
+    width:220px;
+    border-radius:25px;
+    box-shadow:0px 0px 35px rgba(0,255,255,0.35);
+    transition:0.4s;
+}
+
+.logo:hover{
+    transform:scale(1.03);
+}
+
+/* FIX: SAFE HEADING CONTROL (NO GLOBAL BREAKING) */
+.landing-page h1,
+.dashboard h1{
+    font-size:58px;
+    margin-top:25px;
+    margin-bottom:10px;
+    color:#ffffff;
+    letter-spacing:2px;
+}
+
+.subtitle{
+    font-size:20px;
+    color:#b8dfff;
+    margin-bottom:35px;
+}
+
+/* ---------------- BUTTONS ---------------- */
+
+.btn{
+    padding:14px 32px;
+    border:none;
+    border-radius:14px;
+    background:linear-gradient(135deg,#00b4ff,#0077ff);
+    color:white;
+    font-size:17px;
+    font-weight:bold;
+    cursor:pointer;
+    transition:0.3s;
+    box-shadow:0px 0px 18px rgba(0,180,255,0.35);
+}
+
+.btn:hover{
+    transform:translateY(-3px);
+    box-shadow:0px 0px 30px rgba(0,180,255,0.6);
+}
+
+/* ---------------- DASHBOARD ---------------- */
+
+.dashboard{
+    padding:40px 20px 70px;
+    text-align:center;
+}
+
+.dashboard h2{
+    font-size:38px;
+    margin-bottom:40px;
+    color:#d9f2ff;
+}
+
+/* ---------------- CARDS ---------------- */
+
+.cards{
+    display:flex;
+    justify-content:center;
+    flex-wrap:wrap;
+    gap:28px;
+}
+
+.card{
+    width:240px;
+    padding:28px 20px;
+    border-radius:22px;
+    background:rgba(255,255,255,0.08);
+    backdrop-filter:blur(10px);
+    border:1px solid rgba(255,255,255,0.1);
+    box-shadow:0px 8px 30px rgba(0,0,0,0.4);
+    transition:0.3s;
+}
+
+.card:hover{
+    transform:translateY(-8px);
+    box-shadow:0px 0px 25px rgba(0,255,255,0.25);
+}
+
+.card h3{
+    font-size:22px;
+    margin-bottom:18px;
+    color:#8fd3ff;
+}
+
+.card p{
+    font-size:34px;
+    font-weight:bold;
+    color:white;
+}
+
+/* ---------------- STATUS COLORS ---------------- */
+
+.safe{
+    border-left:6px solid #00ff99;
+}
+
+.warning{
+    border-left:6px solid #ffcc00;
+}
+
+.danger{
+    border-left:6px solid #ff4d4d;
+}
+
+/* ---------------- LIVE GLOW EFFECTS ---------------- */
+
+.safe{
+    box-shadow:0px 0px 22px rgba(0,255,140,0.18);
+}
+
+.warning{
+    box-shadow:0px 0px 22px rgba(255,200,0,0.18);
+}
+
+.danger{
+    box-shadow:0px 0px 25px rgba(255,0,0,0.28);
+    animation:pulse 1.2s infinite;
+}
+
+/* PULSE ANIMATION */
+
+@keyframes pulse{
+
+    0%{
+        transform:scale(1);
+    }
+
+    50%{
+        transform:scale(1.02);
+    }
+
+    100%{
+        transform:scale(1);
+    }
+}
+
+/* ---------------- STATUS BAR ---------------- */
+
+.status-bar{
+    margin:45px auto;
+    width:85%;
+    padding:18px;
+    border-radius:18px;
+    background:rgba(0,255,140,0.12);
+    border:1px solid rgba(0,255,140,0.25);
+    color:#8dffcb;
+    font-size:20px;
+    font-weight:bold;
+    transition:0.4s ease;
+}
+
+/* ---------------- ALERT BOX ---------------- */
+
+.alert-box{
+    margin-top:35px;
+    color:#ffb3b3;
+    font-size:18px;
+}
+
+/* ---------------- GRAPH HEADER FIX ---------------- */
+
+header.header {
+    width: 100%;
+    padding: 15px 30px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    background: rgba(0,0,0,0.2);
+}
+
+.header-left {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+}
+
+/* OVERRIDE ONLY FOR HEADER LOGO */
+header.header .logo {
+    width: auto;
+    height: 55px;
+    border-radius: 10px;
+    box-shadow: none;
+}
+
+/* FIX GRAPH PAGE LOGO CENTER */
+.graphs-header{
+    display:flex;
+    flex-direction:column;
+    align-items:center;
+    justify-content:center;
+    text-align:center;
+}
+/* ---------------- CHART AREA ---------------- */
+
+.chart-container{
+    width:90%;
+    max-width:1000px;
+    margin:40px auto;
+    background:rgba(255,255,255,0.06);
+    padding:25px;
+    border-radius:20px;
+    backdrop-filter:blur(8px);
+}
+
+canvas{
+    background:white;
+    border-radius:15px;
+    padding:10px;
+}
+
+/* ---------------- RESPONSIVE ---------------- */
+
+@media screen and (max-width:768px){
+
+    .landing-page h1,
+    .dashboard h1{
+        font-size:42px;
+    }
+
+    .dashboard h2{
+        font-size:30px;
+    }
+
+    .card{
+        width:85%;
+    }
+
+    .logo{
+        width:180px;
+    }
+}
+
+/* ---------------- AI PREDICTION ---------------- */
+
+.prediction-box{
+
+    width:85%;
+    margin:30px auto;
+
+    padding:25px;
+
+    border-radius:22px;
+
+    background:rgba(0,180,255,0.08);
+
+    border:1px solid rgba(0,180,255,0.25);
+
+    box-shadow:0px 0px 20px rgba(0,180,255,0.15);
+
+    backdrop-filter:blur(10px);
+}
+
+.prediction-box h3{
+
+    color:#7ddcff;
+    margin-bottom:12px;
+}
+
+.prediction-box p{
+
+    font-size:22px;
+    font-weight:bold;
+
+    color:white;
+}
+
+/* ---------------- EVENT LOGS ---------------- */
+
+.event-log{
+
+    width:85%;
+    margin:35px auto;
+
+    padding:25px;
+
+    border-radius:22px;
+
+    background:rgba(255,255,255,0.05);
+
+    border:1px solid rgba(255,255,255,0.08);
+
+    max-height:320px;
+
+    overflow-y:auto;
+
+    text-align:left;
+}
+
+.event-log h3{
+
+    text-align:center;
+
+    margin-bottom:20px;
+
+    color:#8fd3ff;
+}
+
+.event-log p{
+
+    padding:10px;
+
+    border-bottom:1px solid rgba(255,255,255,0.08);
+
+    color:#d6eaff;
+
+    font-size:15px;
+}
+
+/* ---------------- DANGER ANIMATION ---------------- */
+
+.danger{
+
+    animation:pulseDanger 1.2s infinite;
+}
+
+@keyframes pulseDanger{
+
+    0%{
+        box-shadow:0px 0px 10px rgba(255,0,0,0.2);
+    }
+
+    50%{
+        box-shadow:0px 0px 28px rgba(255,0,0,0.8);
+    }
+
+    100%{
+        box-shadow:0px 0px 10px rgba(255,0,0,0.2);
+    }
+}
+
+/* ---------------- BOOT SCREEN ---------------- */
+
+.boot-screen {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100vh;
+    background: #050b14;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 9999;
+    animation: fadeOut 2.5s ease forwards;
+    animation-delay: 2s;
+}
+
+.boot-box {
+    text-align: center;
+    color: #8fd3ff;
+    font-size: 18px;
+}
+
+.boot-box h2 {
+    color: white;
+    margin-bottom: 10px;
+}
+
+@keyframes fadeOut {
+    to {
+        opacity: 0;
+        visibility: hidden;
+    }
+}
+
+/* ---------------- STATUS GLOW ---------------- */
+
+.safe-card {
+    box-shadow: 0 0 20px rgba(0,255,140,0.2);
+    transition: 0.4s;
+}
+
+.warning-card {
+    box-shadow: 0 0 20px rgba(255,200,0,0.2);
+}
+
+.danger-card {
+    box-shadow: 0 0 20px rgba(255,80,80,0.25);
+}
+
+/* pulsing effect */
+@keyframes pulseGreen {
+    0% { box-shadow: 0 0 10px rgba(0,255,140,0.2); }
+    50% { box-shadow: 0 0 25px rgba(0,255,140,0.5); }
+    100% { box-shadow: 0 0 10px rgba(0,255,140,0.2); }
+}
+.live-dot {
+    width: 10px;
+    height: 10px;
+    background: #00ff99;
+    border-radius: 50%;
+    display: inline-block;
+    animation: blink 1s infinite;
+}
+
+@keyframes blink {
+    50% { opacity: 0.3; }
+}

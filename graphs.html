@@ -1,0 +1,297 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <title>SelfHealX - Live Analytics</title>
+
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+
+<body>
+
+<!-- 🔥 STEP 2.5: BOOT SCREEN -->
+<div id="bootScreen" class="boot-screen">
+    <div class="boot-box">
+        <h2>SelfHealX System Booting...</h2>
+        <p>Initializing sensors • Loading AI engine • Syncing data</p>
+    </div>
+</div>
+
+    <!-- HEADER -->
+    <header class="graphs-header">
+
+        <img src="{{ url_for('static', filename='logo.jpg') }}"
+             alt="SelfHealX Logo"
+             class="graphs-logo">
+
+        <h1 class="graphs-title">SelfHealX Live Structural Analytics</h1>
+
+        <p class="graphs-subtitle">
+            AI-Based Structural Health Monitoring & Predictive Analysis
+        </p>
+
+    </header>
+
+    <!-- STATUS CARDS -->
+    <section class="graph-status-section">
+
+        <div class="mini-card safe-card">
+            <h3>System Status</h3>
+            <p id="systemStatus">STABLE</p>
+        </div>
+
+        <div class="mini-card warning-card">
+            <h3>Crack Risk</h3>
+            <p id="riskValue">--%</p>
+        </div>
+
+        <div class="mini-card blue-card">
+            <h3>Resistance</h3>
+            <p id="resistanceValue">--%</p>
+        </div>
+
+        <div class="mini-card warning-card">
+            <h3>Predicted Risk</h3>
+            <p id="futureRiskValue">--%</p>
+        </div>
+
+    </section>
+
+    <!-- MAIN CONTENT -->
+    <main>
+
+        {% if timestamps and loadcells and piezos %}
+
+        <!-- CRACK GAUGE -->
+        <div class="chart-container">
+            <h2 class="chart-title">Structural Health Index</h2>
+            <canvas id="crackGauge"></canvas>
+        </div>
+
+        <!-- LOAD GRAPH -->
+        <div class="chart-container">
+            <h2 class="chart-title">Load Sensor Analysis</h2>
+            <canvas id="loadCellChart"></canvas>
+        </div>
+
+        <!-- PIEZO GRAPH -->
+        <div class="chart-container">
+            <h2 class="chart-title">Piezo Vibration Analysis</h2>
+            <canvas id="piezoChart"></canvas>
+        </div>
+
+        {% else %}
+
+        <div class="no-data-box">
+            <h2>No Sensor Data Yet</h2>
+            <p>Connect Arduino and start sending readings.</p>
+        </div>
+
+        {% endif %}
+
+    </main>
+
+    <!-- ALERT -->
+    <div id="alert-popup" class="alert-popup" style="display:none;"></div>
+
+<script>
+
+{% if timestamps and loadcells and piezos %}
+
+// ---------------- DATA ----------------
+const timestamps = {{ timestamps | tojson }};
+const loadcells = {{ loadcells | tojson }};
+const piezos = {{ piezos | tojson }};
+
+const loadCellThreshold = {{ loadcell_threshold }};
+const piezoThreshold = {{ piezo_threshold }};
+
+// ---------------- BOOT SCREEN (STEP 2.5) ----------------
+setTimeout(() => {
+    document.getElementById("bootScreen").style.display = "none";
+}, 2500);
+
+// ---------------- CORE ENGINE ----------------
+const MAX_POINTS = 30;
+
+let sensorOnline = true;
+let lastTimestamp = timestamps[timestamps.length - 1];
+
+// ---------------- AI TREND ----------------
+function calculateTrend(values) {
+
+    if (values.length < 3) return 0;
+
+    let recent = values.slice(-5);
+    let sum = 0;
+
+    for (let i = 1; i < recent.length; i++) {
+        sum += (recent[i] - recent[i - 1]);
+    }
+
+    return sum / (recent.length - 1);
+}
+
+function predictRisk(loadcells, piezos) {
+
+    let loadTrend = calculateTrend(loadcells);
+    let piezoTrend = calculateTrend(piezos);
+
+    let currentRisk =
+        (loadcells[loadcells.length - 1] +
+         piezos[piezos.length - 1]) / 15;
+
+    let predictedRisk =
+        currentRisk + (loadTrend * 2) + (piezoTrend * 1.5);
+
+    return {
+        currentRisk: Math.min(100, Math.max(0, Math.floor(currentRisk))),
+        predictedRisk: Math.min(100, Math.max(0, Math.floor(predictedRisk)))
+    };
+}
+
+let prediction = predictRisk(loadcells, piezos);
+let crackRisk = prediction.currentRisk;
+let futureRisk = prediction.predictedRisk;
+
+let resistance = 100 - Math.floor(crackRisk / 1.5);
+
+// ---------------- UI UPDATE ----------------
+document.getElementById("riskValue").innerText = crackRisk + "%";
+document.getElementById("resistanceValue").innerText = resistance + "%";
+document.getElementById("futureRiskValue").innerText = futureRisk + "%";
+
+const systemStatus = document.getElementById("systemStatus");
+
+function setStatus(text, color) {
+    systemStatus.innerText = text;
+    systemStatus.style.color = color;
+}
+
+// AI thinking effect (STEP 2.5)
+setStatus("AI ANALYZING...", "#8fd3ff");
+
+setTimeout(() => {
+
+    if (futureRisk < 40) setStatus("STABLE (AI SAFE)", "#00ff99");
+    else if (futureRisk < 70) setStatus("WARNING (RISING)", "#ffcc00");
+    else setStatus("CRITICAL (PREDICTED FAIL)", "#ff4d4d");
+
+}, 1000);
+
+// ---------------- ALERT ----------------
+const alertPopup = document.getElementById('alert-popup');
+
+function showAlert(msg) {
+    alertPopup.innerText = msg;
+    alertPopup.style.display = "block";
+
+    setTimeout(() => {
+        alertPopup.style.display = "none";
+    }, 4000);
+}
+
+let latestLoad = loadcells[loadcells.length - 1];
+let latestPiezo = piezos[piezos.length - 1];
+
+if (latestLoad > loadCellThreshold)
+    showAlert(`⚠ Load Spike: ${latestLoad}`);
+
+if (latestPiezo > piezoThreshold)
+    showAlert(`⚠ Vibration Spike: ${latestPiezo}`);
+
+// ---------------- SENSOR DISCONNECT ----------------
+function checkSensorStatus() {
+
+    let currentTime = timestamps[timestamps.length - 1];
+
+    if (currentTime === lastTimestamp) {
+
+        if (sensorOnline) {
+            sensorOnline = false;
+            setStatus("OFFLINE", "#ff4d4d");
+            document.body.style.filter = "brightness(0.6)";
+            showAlert("⚠ SENSOR DISCONNECTED");
+        }
+
+    } else {
+
+        if (!sensorOnline) {
+            showAlert("✅ SENSOR RECOVERED");
+        }
+
+        sensorOnline = true;
+        document.body.style.filter = "none";
+    }
+
+    lastTimestamp = currentTime;
+}
+
+setInterval(checkSensorStatus, 2000);
+
+// ---------------- CHARTS ----------------
+const loadCellCtx = document.getElementById('loadCellChart').getContext('2d');
+
+const loadCellChart = new Chart(loadCellCtx, {
+    type: 'line',
+    data: {
+        labels: timestamps,
+        datasets: [{
+            label: 'Load Sensor',
+            data: loadcells,
+            borderColor: '#00a2ff',
+            backgroundColor: 'rgba(0,162,255,0.18)',
+            fill: true,
+            tension: 0.4
+        }]
+    }
+});
+
+const piezoCtx = document.getElementById('piezoChart').getContext('2d');
+
+const piezoChart = new Chart(piezoCtx, {
+    type: 'line',
+    data: {
+        labels: timestamps,
+        datasets: [{
+            label: 'Piezo Sensor',
+            data: piezos,
+            borderColor: '#ff4d6d',
+            backgroundColor: 'rgba(255,77,109,0.18)',
+            fill: true,
+            tension: 0.4
+        }]
+    }
+});
+
+const gaugeCtx = document.getElementById('crackGauge').getContext('2d');
+
+const crackGauge = new Chart(gaugeCtx, {
+    type: 'doughnut',
+    data: {
+        datasets: [{
+            data: [100 - crackRisk, crackRisk],
+            backgroundColor: [
+                crackRisk > 80 ? '#ff4d4d' :
+                crackRisk > 60 ? '#ffcc00' :
+                '#00ff99',
+                '#1e2a3a'
+            ]
+        }]
+    },
+    options: {
+        cutout: '75%',
+        rotation: -90,
+        circumference: 180,
+        plugins: { legend: { display: false } }
+    }
+});
+
+{% endif %}
+
+</script>
+
+</body>
+</html>

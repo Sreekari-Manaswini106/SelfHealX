@@ -1,0 +1,328 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <title>SelfHealX</title>
+
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+</head>
+
+<body>
+
+    <!-- LANDING PAGE -->
+    <div class="landing-page">
+
+        <img src="{{ url_for('static', filename='logo.jpg') }}" class="logo">
+
+        <h1>SelfHealX</h1>
+
+        <p class="subtitle">
+            AI-Powered Structural Health Monitoring & Predictive Alert System
+        </p>
+
+        <button onclick="scrollToDashboard()" class="btn">
+            Enter Dashboard
+        </button>
+
+    </div>
+
+    <!-- DASHBOARD -->
+    <div id="dashboard" class="dashboard">
+
+        <h2>Live Structural Monitoring Dashboard</h2>
+
+        <div class="cards">
+
+            <!-- LOAD SENSOR -->
+            <div class="card safe">
+                <h3>Load Sensor</h3>
+                <p id="loadcell">0</p>
+            </div>
+
+            <!-- PIEZO SENSOR -->
+            <div class="card safe">
+                <h3>Piezo Sensor</h3>
+                <p id="piezo">0</p>
+            </div>
+
+            <!-- CRACK RISK -->
+            <div class="card warning">
+                <h3>Crack Risk</h3>
+                <p id="risk">18%</p>
+            </div>
+
+            <!-- RESISTANCE -->
+            <div class="card safe">
+                <h3>Resistance</h3>
+                <p id="resistance">92%</p>
+            </div>
+
+            <!-- DANGER SCORE -->
+            <div class="card warning">
+                <h3>Danger Score</h3>
+                <p id="dangerScore">12</p>
+            </div>
+
+            <!-- SENSOR STATUS -->
+            <div class="card safe">
+                <h3>Sensor Status</h3>
+                <p id="sensorStatus">ACTIVE</p>
+            </div>
+
+        </div>
+
+        <!-- STATUS BAR -->
+        <div class="status-bar">
+            🟢 SYSTEM STATUS : STRUCTURE STABLE
+        </div>
+
+        <!-- AI PREDICTION -->
+        <div class="prediction-box">
+
+            <h3>AI Prediction Engine</h3>
+
+            <p id="prediction">
+                Monitoring Structural Stability...
+            </p>
+
+        </div>
+
+        <!-- ALERT -->
+        <div class="alert-box">
+            Predictive Monitoring Active • AI Structural Analysis Running
+        </div>
+
+        <!-- EVENT LOGS -->
+        <div class="event-log">
+
+            <h3>Live Event Logs</h3>
+
+            <div id="eventContainer">
+
+                <p>Waiting for sensor activity...</p>
+
+            </div>
+
+        </div>
+
+        <br><br>
+
+        <button onclick="location.href='/graphs'" class="btn">
+            View Live Analytics
+        </button>
+
+    </div>
+
+    <script>
+
+        function scrollToDashboard() {
+
+            document.getElementById('dashboard').scrollIntoView({
+                behavior: 'smooth'
+            });
+
+        }
+
+        let alertShown = false;
+
+        async function updateLiveData() {
+
+            try {
+
+                const response = await fetch('/live_data');
+
+                const data = await response.json();
+
+                // SENSOR VALUES
+
+                document.getElementById('loadcell').innerText =
+                    data.loadcell;
+
+                document.getElementById('piezo').innerText =
+                    data.piezo;
+
+                // AI VALUES
+
+                let crackRisk = data.risk;
+
+                let resistance = data.resistance;
+
+                document.getElementById('risk').innerText =
+                    crackRisk + "%";
+
+                document.getElementById('resistance').innerText =
+                    resistance + "%";
+
+                document.getElementById('dangerScore').innerText =
+                    data.danger_score;
+
+                document.getElementById('prediction').innerText =
+                    data.prediction;
+
+                document.getElementById('sensorStatus').innerText =
+                    data.sensor_status;
+
+                // STATUS COLORS
+
+                const statusBar =
+                    document.querySelector('.status-bar');
+
+                const cards =
+                    document.querySelectorAll('.card');
+
+                // RESET COLORS
+
+                cards.forEach(card => {
+
+                    card.classList.remove(
+                        'safe',
+                        'warning',
+                        'danger'
+                    );
+
+                });
+
+                // AI COLOR LOGIC
+
+                // ---------------- COLOR LOGIC ----------------
+
+// 1. SENSOR DISCONNECTED
+
+if (data.sensor_status === "DISCONNECTED") {
+
+    cards.forEach(card => {
+        card.classList.add("danger");
+    });
+
+    statusBar.innerHTML =
+        "⚫ SENSOR DISCONNECTED";
+
+    statusBar.style.background =
+        "rgba(80,80,80,0.25)";
+
+    statusBar.style.color =
+        "#ffffff";
+}
+
+// 2. RED (Highest Priority)
+
+else if (
+    data.alert ||
+    data.loadcell >= 500 ||
+    data.piezo >= 780
+) {
+
+    cards.forEach(card => {
+        card.classList.add("danger");
+    });
+
+    statusBar.innerHTML =
+        "🔴 CRITICAL : STRUCTURAL ALERT";
+
+    statusBar.style.background =
+        "rgba(255,0,0,0.12)";
+
+    statusBar.style.color =
+        "#ff9b9b";
+}
+
+// 3. GREEN
+
+else if (crackRisk < 40) {
+
+    cards.forEach(card => {
+        card.classList.add("safe");
+    });
+
+    statusBar.innerHTML =
+        "🟢 SYSTEM STATUS : STRUCTURE STABLE";
+
+    statusBar.style.background =
+        "rgba(0,255,140,0.12)";
+
+    statusBar.style.color =
+        "#8dffcb";
+}
+
+// 4. YELLOW
+
+else {
+
+    cards.forEach(card => {
+        card.classList.add("warning");
+    });
+
+    statusBar.innerHTML =
+        "🟡 WARNING : STRESS LEVEL INCREASING";
+
+    statusBar.style.background =
+        "rgba(255,200,0,0.12)";
+
+    statusBar.style.color =
+        "#ffe082";
+}
+                // LIVE EVENT LOGS
+
+                const eventContainer =
+                    document.getElementById('eventContainer');
+
+                eventContainer.innerHTML = "";
+
+                data.event_log.slice().reverse().forEach(event => {
+
+                    eventContainer.innerHTML += `
+                        <p>${event}</p>
+                    `;
+
+                });
+
+                // ALERT POPUP
+
+                if (data.alert && !alertShown) {
+
+                    alertShown = true;
+
+                    Swal.fire({
+
+                        title: '⚠ Structural Alert!',
+
+                        text:
+                            `Load: ${data.loadcell} | Piezo: ${data.piezo}`,
+
+                        icon: 'warning',
+
+                        background: '#0d1b2a',
+
+                        color: '#ffffff',
+
+                        confirmButtonColor: '#0077ff'
+
+                    });
+
+                }
+
+                if (!data.alert) {
+
+                    alertShown = false;
+
+                }
+
+            }
+
+            catch (err) {
+
+                console.log(err);
+
+            }
+
+        }
+
+        setInterval(updateLiveData, 500);
+
+    </script>
+
+</body>
+
+</html>
